@@ -13,6 +13,11 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     // add token here
+    const token = localStorage.getItem("token");
+
+    if(token){
+       config.headers.Authorization = `Bearer ${token}`
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -28,6 +33,15 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    const status = error.response?.status;
+     if (status === 401) {
+      window.location.href = "/login";
+    }
+
+    if (status >= 500) {
+      window.alert("Something went wrong. Please try again later.");
+    }
+
     // handle 401 and 5xx here, then re-throw
     return Promise.reject(error);
   }
